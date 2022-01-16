@@ -7,7 +7,7 @@ Welcome to the Informer library. This is the developmental code and supplementar
 3. [Code description](#code-description)
 4. [Instructions to run demo](#demo-instructions)
 ## Supplementary Material: User Study
-The user studies were conducted using Google Forms. Below are screenshots of the instructions, background, and questions provided to the participants. Red asterisks indicate required questions. User study 1 consists of two parts (for two different tasks, SST2 and MNLI) and both user studies have a set of preliminary questions for participant orientation. Please refer to our research paper *Explain your Explanation: Understanding Metrics for Explanation Quality* for results.<br>
+The user studies were conducted using Google Forms. Below are screenshots of the instructions, background, and questions provided to the participants. Red asterisks indicate required questions. User study 1 consists of two parts (for two different tasks, SST2 and MNLI) and both user studies have a set of preliminary questions for participant orientation. Please refer to our research paper *Explain your Explanation: Understanding Metrics for Explanation Quality* for results and description of the set up.<br>
 ### User Study 1: CEA
 1. [Part 1 (SST2): Background](#part-1-sst2-background)
 2. [Part 1 (SST2): Preliminary Question](#part-1-sst2-preliminary-question)
@@ -27,6 +27,7 @@ The user studies were conducted using Google Forms. Below are screenshots of the
 ![image-6](readme-images/cea-sst2-question-instruction-1.jpg)
 ![image-7](readme-images/cea-sst2-question-instruction-2.jpg)
 #### Part 1 (SST2): Question Example
+Each question had a part A and B where the CEA was not provided in the first version of the question (above), and was provided in the second version (below).<br>
 ![image-8](readme-images/cea-sst2-question-1.jpg)
 ![image-9](readme-images/cea-sst2-question-2.jpg)
 #### Part 2 (MNLI): Background
@@ -57,6 +58,7 @@ The user studies were conducted using Google Forms. Below are screenshots of the
 ![image-25](readme-images/dc-background-8.jpg)
 ![image-26](readme-images/dc-background-9.jpg)
 #### Question Example
+Each question had three parts, where the DC score was not provided in the first part (top), a global DC score was provided in the second part (middle) and an instance-level DC score was provided in the third part (bottom) of the question. 
 ![image-27](readme-images/dc-question-1.jpg)
 ![image-28](readme-images/dc-question-2.jpg)
 ![image-29](readme-images/dc-question-3.jpg)
