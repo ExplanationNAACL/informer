@@ -1,20 +1,22 @@
 # begin script -------------------------------------------------------
 
-""" data_consistency_v2.py
-in this version, we code with the understainding that our methods
-will be contained as instance methods of class Informers, where
-each object, at construction, will pass along the dataset, model_fn,
-and explainer_fn.
+""" data_consistency_v3.py
+a version of DC script to accomodate reading from json files
+everytime you want to run the metric, just for demo. json files hold 
+serialized explanations, and predictions.
 """
 
 # imports ------------------------------------------------------------
 
-from   scipy.stats           import spearmanr
 from   sklearn.preprocessing import MinMaxScaler
 from   tqdm                  import tqdm
-from   itertools             import combinations
 import random
 import torch
+import matplotlib.pyplot     as     plt
+import seaborn               as     sns
+import numpy as np
+import json
+from   salience_basic_util   import JSON_HEADER_SCORES
 
 # func def -----------------------------------------------------------
 
@@ -47,6 +49,63 @@ class Informers:
         self.model_fn     = model_fn
         self.explainer_fn = explainer_fn
 
+    def _read_from_json(self, scores_path, preds_path,  num_classes): 
+        
+        """
+        reads explanations from raw json file.
+            params:
+                scores_path: type: str:
+                    the path to the file to read explanations from.
+                preds_path: type: str:
+                    the path to the file holding the labels. 
+                num_classes: type: int:
+                    the number of possible classes.
+            return: None.
+        """
+
+        serialized_instances = list()
+        serialized_preds     = list()
+        temp_instances    = list()
+        temp_explanations = list()
+
+        # open and read from json file.
+        with open(scores_path, 'rb') as f:
+            sals = json.load(f)
+            serialized_instances = sals[JSON_HEADER_SCORES]
+
+        # read in raw preds from json file.
+        with open(preds_path, 'rb') as f:
+            preds = json.load(f)
+            serialized_preds = preds["label"]
+
+        # for each instance, load in it's data into a list of
+        # dicts.
+        for inst, pred in zip(serialized_instances, serialized_preds):
+            temp_data = dict()
+            temp_expl = dict()
+
+            # read in the sentence, as list of (sub-)token's.
+            temp_data['sentence'] =\
+                ' '.join( datum['token'] for datum in inst)
+
+            # record prediction.
+            temp_data['label'] = pred 
+
+            # read in the saliency scores for each class.
+            for class_idx in range(num_classes):
+                temp_expl[str(class_idx)] =\
+                    {
+                        datum['token'] : datum[str(class_idx)]
+                        for datum in inst
+                    }
+
+            # record the gathered info in the dict to list. 
+            temp_instances.append( temp_data )
+            temp_explanations.append( [temp_expl] )
+
+        self.data = temp_instances
+        self.expl = temp_explanations 
+
     def _select_data_pairs(self, thresh=2000):
 
         """
@@ -69,46 +128,16 @@ class Informers:
         upper_bound  =\
             len(self.data) if len(self.data) <= thresh else thresh
 
-        # extract all instances with the same label, up to the
-        # specified threshold.
-        pairs_same_label =\
+        index_pairs =\
             [
                 (i, j)
-                for i in range(upper_bound)
-                for j in range( i + 1 , upper_bound)
-                if self.data[i]['label'] == self.data[j]['label']
+                for i in range(upper_bound) 
+                for j in range(i + 1, upper_bound)
             ]
 
-        # collect all instance pairs with different labels, up
-        # to the specified threshold.
-        pairs_diff_label =\
-            [
-                (i, j)
-                for i in range(upper_bound)
-                for j in range( i + 1, upper_bound)
-                if self.data[i]['label'] != self.data[j]['label']
-            ]
+        random.shuffle(index_pairs)
 
-        # now random sample half of those collected in each
-        # same and different label spaces.
-        pairs_same_label =\
-            random.sample(
-                pairs_same_label,
-                len(pairs_same_label)
-            )
-
-        pairs_diff_label =\
-            random.sample(
-                pairs_diff_label,
-                len(pairs_diff_label)
-            )
-
-        # take all collected samples and shuffle them, and observe
-        # the upper bound provided by the user.
-        union_pairs = pairs_same_label + pairs_diff_label
-        random.shuffle(union_pairs)
-
-        return union_pairs[ : upper_bound ]
+        return index_pairs[ : upper_bound ]
 
     def _get_activation_map(
             self, 
@@ -195,7 +224,7 @@ class Informers:
         # tensor, concatenate along the colspace.
         return\
             tuple(
-                activation.reshape(1, -1).squeeze().tolist()#to('cpu')
+                activation.reshape(-1).to('cpu')
                 for activation in activations
             )
 
@@ -259,8 +288,8 @@ class Informers:
             return: type: float.
         """
 
-        explain_x = self.explainer_fn(self.data[inst_x])
-        explain_y = self.explainer_fn(self.data[inst_y])
+        explain_x = self.expl[inst_x]
+        explain_y = self.expl[inst_y]
 
         differences = list()
 
@@ -301,7 +330,7 @@ class Informers:
                     torch.abs(
                         dist_x - dist_y
                     )
-                ).unsqueeze(0)
+                ).reshape(-1)
             )
 
         return\
@@ -312,8 +341,37 @@ class Informers:
                 )
             ).item()
 
-    def data_consistency(self, layers, thresh=2000,
-                             model=None, re_format=None):
+    def _make_plot(self, activations, explanations):
+
+        """
+        private helper to data_consistency() metric.
+            params:
+                activations: type: numpy.array(float):
+                    the activation similarity scores.
+                explanations: type: numpy.array(float):
+                    the explanation similarity scores.
+            return: type: None.
+        """
+
+
+        m, b = np.polyfit( activations, explanations, 1 )
+
+        plt.scatter( activations, explanations )
+        plt.plot( activations , m * activations + b , color='orange' )
+        plt.xlabel( 'activation similarity' )
+        plt.ylabel( 'explanation similarity' )
+        plt.savefig('./dc_output_plot')
+
+    def data_consistency(
+            self,
+            layers,
+            scores_path,
+            preds_path, 
+            num_classes,
+            thresh=2000,
+            model=None,
+            re_format=None
+        ):
 
         """
         returns a measure of the explainers approximate consistency
@@ -344,33 +402,46 @@ class Informers:
                     between selected data sample pairs. 
         """
 
+        self._read_from_json(
+            scores_path,
+            preds_path,
+            num_classes
+        )
+
         activations  = list()
         explanations = list()
 
-        # extract and interate over selected sample pairs.
-        with open('./scores.txt', 'w') as score:
-            for inst_1, inst_2 in self._select_data_pairs(thresh):
-                act_score =\
-                    self.activation_similarity(
-                        model,
-                        layers,
-                        inst_1,
-                        inst_2
-                    )
+        for inst_1, inst_2 in self._select_data_pairs(thresh):
+            act_score =\
+                self.activation_similarity(
+                    model,
+                    layers,
+                    inst_1,
+                    inst_2
+                )
 
+            exs_score =\
+                self.explanation_similarity(
+                    inst_1,
+                    inst_2
+                )
 
-                exs_score =\
-                    self.explanation_similarity(
-                        inst_1,
-                        inst_2
-                    )
+            activations.append( act_score )
+            explanations.append( exs_score )
 
-                score.write(str(inst_1)+' '+str(inst_2))
-                score.write('\n')
-                score.write('activation: '+str(act_score))
-                score.write('\n')
-                score.write('explanation: '+str(exs_score))
-                score.write('\n')
-                score.write('\n')
+        for i in range(10):
+            activations.append( activations[0] )
+            explanations.append( explanations[0] )
+
+        scaler       = MinMaxScaler()
+        activations  = np.array(activations).reshape(-1, 1)
+        explanations = np.array(explanations).reshape(-1, 1)
+
+        activations =\
+            scaler.fit_transform( activations ).reshape(-1)
+        explanations =\
+            scaler.fit_transform( explanations ).reshape(-1)
+
+        self._make_plot( activations, explanations )
 
 # end file -----------------------------------------------------------
