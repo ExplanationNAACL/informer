@@ -298,7 +298,6 @@ def final_page():
                                 scores_path="../serialized_data/MNLI-mbert/lime/val_matched_400.json",
                                 preds_path="../serialized_data/MNLI-mbert/predictions_val_matched_400.json")
     elif options_dict == config_3:
-        # TODO: Chris make sure to put the initiaize Informers according to config 3 for Twitter sentiment classification
         pass
     else:
         print("Strings don't match up somewhere when checking configuration selection")
