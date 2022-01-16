@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+	{% block content %}
+		<div class="jumbotron">
+			Please choose the explanation method you would like to analyze:
+			
+			<form method="POST" action="{{url_for('final_page')}}">
+			    <select name ="input_dropdown">
+			    	<option value = "LIME"> LIME </option>
+			    </select>
+			    <input type="hidden" name="task" value="{{task}}">
+			    <input type="hidden" name="dataset" value="{{dataset}}">
+			    <input type="hidden" name="model" value="{{model}}">
+			    <input class="btn btn-primary right-button" type="submit" value="submit"/>
+
+			</form>
+		</div>
+	{% endblock %}
+
+
+	

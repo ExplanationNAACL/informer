@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+	{% block content %}
+		<br><br>
+		<center>
+		<div style="background-color: white;">
+				<h1 style="color: blue;">Activation similarity vs. explanation similarity scatter plot.</h1>
+		</div>
+        <img src = "{{url_for('static', filename=img_filename)}}">
+		</center>
+	{% endblock %}

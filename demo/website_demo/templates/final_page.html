@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+	{% block content %}
+		<div class="jumbotron">
+			Your selected options for metrics are:<br>
+			Task: {{options["task"]}} <br>
+			Model: {{options["model"]}} <br>
+			Dataset: {{options["dataset"]}} <br>
+			Explainer: {{options["explainer"]}}
+		</div>
+
+		<div class="metric_button" style="background-color: white; top:300px;left:150px" id="CEA">
+			Confidence-Explanation Agreement
+			<form method="POST" action="{{url_for('cea')}}">
+			<input class="btn btn-primary right-button" type="submit" value="submit"/>
+			</form>
+		</div>
+		<div class="metric_button" style="background-color: white; top: 450px; left:150px" id="DC">
+			Dataset Consistency
+			<form method="POST" action="{{url_for('dc')}}">
+			<input class="btn btn-primary right-button" type="submit" value="submit"/>
+				</form>
+		</div>
+		<div class="metric_button" style="background-color: white; top: 600px; left:150px" id="TC">
+			Token Consistency
+			<form method="POST" action="{{url_for('dc')}}">
+			<input class="btn btn-primary right-button" type="submit" value="submit"/>
+				</form>
+		</div>
+		<div class="metric_button" style="background-color: white; top: 300px; left:1390px" id="CI">
+			Confidence Indication
+			<form method="POST" action="{{url_for('dc')}}">
+			<input class="btn btn-primary right-button" type="submit" value="submit"/>
+				</form>
+		</div>
+		<div class="metric_button" style="background-color: white; top: 450px; left:1390px" id="Perturb">
+			Perturbations - Synonyms
+			<form method="POST" action="{{url_for('dc')}}">
+			<input class="btn btn-primary right-button" type="submit" value="submit"/>
+				</form>
+		</div>
+		<div class="metric_button" style="background-color: white; top: 600px; left:1390px" id="Perturb2">
+			Perturbations - Adjuncts
+			<form method="POST" action="{{url_for('dc')}}">
+			<input class="btn btn-primary right-button" type="submit" value="submit"/>
+				</form>
+		</div>
+
+
+	{%endblock%}

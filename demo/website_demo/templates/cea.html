@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+{%block style%}
+	body {
+        background-image: url("{{url_for('static', filename='ucsc.jpg')}}");
+        background-size: cover;
+    }
+    #info {
+        height:30px;
+        width:100px;
+        background-color: rgba(240, 248, 255, 0.9);
+    }
+    #zero_scores {
+        margin-top:50px;
+        height: 800px;
+        max-width:80wh;
+        overflow:auto;
+    }
+    .z {
+        padding: 5px;
+    }
+    .tableFixHead {
+        overflow-y: auto;
+        height: 106px;
+      }
+    .tableFixHead thead th {
+        position: sticky;
+        top: 0;
+      }
+      table {
+        position:absolute;
+        left: 10%;
+        border-collapse: collapse;
+        width: 80%;
+      }
+      th,
+      td {
+        padding: 8px 16px;
+        border: 1px solid #ccc;
+        background-color: #ADD8E6;
+      }
+      th {
+        background: #eee;
+      }
+{%endblock%} {% block content %}
+		<br><br>
+		<center>
+			<div style="background-color: white;">
+				<h1 style="color: blue;">Instances in dataset where CEA is 0, in order of decreasing model confidence</h1>
+			</div>
+		</center>
+		<div id="zero_scores">
+			{% for batch in cea_zero | batch(3, " ")%}
+				<div class="row">
+					{% for char in batch %}
+						<div class="col z border bg-info" style="padding-left: 25px;">
+							<h3>{{char}}</h3>
+						</div>
+					{%endfor%}
+				</div>
+			{%endfor%}
+		</div>
+		<br><br>
+		<center>
+		<div style="background-color: white;">
+			<h1 style="color: blue;">Distribution of CEA scores over dataset</h1></div></center>
+
+		<center>
+			<img src = "{{url_for("static", filename=img_filename)}}">
+		</center>
+
+		<br><br>
+		<center>
+		<div style="background-color: white;">
+			<h1 style="color: blue;">Random sample of 10 instances from dataset</h1></div></center>
+
+		<div class="tableFixHead">
+			<table>
+				<thead>
+					<tr>
+						<th>Sentence</th>
+						<th>Model confidence</th>
+						<th>CEA score</th>
+					</tr>
+				</thead>
+				<tbody>
+					{%for item in random_sample%}
+						<tr>
+							{%for key in item%}
+								<td>
+									 {{item[key]}}
+								</td>
+							{%endfor%}
+						</tr>
+					{%endfor%}
+				</tbody>
+			</table>
+		</div>
+	{% endblock %}

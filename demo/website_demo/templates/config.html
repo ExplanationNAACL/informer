@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+	{% block content %}
+		<div class="jumbotron">
+			Please choose the model you wish to analyze:
+			<form method="POST" action="{{url_for('config_two')}}">
+			    <select name ="input_dropdown">
+			    	{%for model in possible_model%}
+			    	<option value = "{{dataset}}"> {{model}} </option>
+			    	{%endfor%}
+			    </select>
+			    <input class="btn btn-primary right-button" type="submit" value="submit"/>
+
+			</form>
+		</div>
+	{% endblock %}

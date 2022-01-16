@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+	{% block content %}
+		
+		<div class="jumbotron">
+			Please choose the model you wish to use:
+			
+			<form method="POST" action="{{url_for('config_two')}}">
+			    <select name ="input_dropdown">
+			    	{%for model in possible_model%}
+			    	<option value = "{{model}}"> {{model}} </option>
+			    	{%endfor%}
+			    </select>
+			    <input type="hidden" name="task" value="{{task}}">
+			    <input type="hidden" name="dataset" value="{{possible_dataset}}">
+			    <input class="btn btn-primary right-button" type="submit" value="submit"/>
+			</form>
+		</div>
+	{% endblock %}

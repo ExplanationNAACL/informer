@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+	{% block content %}
+		<div class="jumbotron">
+			Please choose the NLP task you are interested in:
+			
+			<form method="POST" action="{{url_for('dataset')}}">
+			    <select name ="input_dropdown">
+			    	<option value = "binary"> Binary Sentiment Classification </option>
+			    	<option value = "ternary"> Ternary Sentiment Classification </option>
+			    	<option value = "nli"> Natural Language Inference </option>
+			    </select>
+			    <input class="btn btn-primary right-button" type="submit" value="submit"/>
+
+			</form>
+		</div>
+	{% endblock %}

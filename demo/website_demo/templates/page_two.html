@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+	{% block content %}
+		
+		<div class="jumbotron">
+			Please choose the dataset you wish to analyze:
+			
+			<form method="POST" action="{{url_for('config')}}">
+			    <select name ="input_dropdown">
+			    	{%for dataset in possible_dataset%}
+			    	<option value = "{{dataset}}"> {{dataset}} </option>
+			    	{%endfor%}
+			    </select>
+			    <input type="hidden" name="task" value="{{task}}">
+			    <input class="btn btn-primary right-button" type="submit" value="submit"/>
+			</form>
+		</div>
+	{% endblock %}
